@@ -1,7 +1,9 @@
-import { appendChartContainer } from "./node_modules/visual-components/index.js"
+import { appendChartContainer, getChart, getMargin } from "./node_modules/visual-components/index.js"
 import { addChart as addBitcoinPricesTweets } from "./bitcoint-tweets/chart.js"
 
-appendChartContainer({ idNum: 1, chartTitle: 'Bitcoin Prices and Tweets' })
+const bitcoinId = appendChartContainer({ idNum: 1, chartTitle: 'Bitcoin Prices and Tweets' })
+await new Promise(r => setTimeout(r, 1));
 
+const chartProps = getChart({ id: bitcoinId, margin: getMargin({ right: 64 }) })
 
-addBitcoinPricesTweets()
+addBitcoinPricesTweets(chartProps)
