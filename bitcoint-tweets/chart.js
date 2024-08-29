@@ -1,7 +1,18 @@
-import { colours, addAxis, formatCurrency } from "../node_modules/visual-components/index.js"
+import { colours, addAxis, formatCurrency, addLegend } from "../node_modules/visual-components/index.js"
 
-const line = ({ chartProps, data, theme = 'light', colour = 'blue', xField, yField, x, axis, strokeWidth = 1 }) => {
-    const { chart, width, height } = chartProps
+const line = ({
+    chartProps,
+    data,
+    theme = 'light',
+    colour = 'blue',
+    xField,
+    yField,
+    x,
+    axis,
+    strokeWidth = 1,
+    legend = true
+}) => {
+    const { chart, width, height, margin } = chartProps
     const palette = theme === 'light' ? colours.paletteLightBg : colours.paletteDarkBg
 
     x = x !== undefined ? x : d3
@@ -41,6 +52,16 @@ const line = ({ chartProps, data, theme = 'light', colour = 'blue', xField, yFie
         })
     }
 
+    if (legend) {
+        addLegend({
+            chart,
+            legends: [yField].map(d => d.charAt(0).toUpperCase() + d.slice(1)),
+            colours: [colour],
+            xPosition: -margin.left,
+            yPosition: -12
+        })
+    }
+
     return { x, y }
 }
 
@@ -62,34 +83,34 @@ export const addChart = async (chartProps, theme = 'light') => {
             }
         }))
 
-    const { chart, width, height } = chartProps
+    const { chart, width, height, margin } = chartProps
 
     const x = d3
         .scaleUtc()
         .domain(d3.extent(prices, d => d.date))
         .range([0, width])
 
-    const tweetsAxes = line({
+    const defaultProps = {
         chartProps,
-        data: tweets,
         xField: 'date',
-        yField: 'tweets',
         x,
         axis: () => { },
         theme,
-        colour: 'orange',
-        strokeWidth: 2
+        strokeWidth: 2,
+        legend: false
+    }
+
+    const tweetsAxes = line({
+        ...defaultProps,
+        data: tweets,
+        yField: 'tweets',
+        colour: 'orange'
     })
     const pricesAxes = line({
-        chartProps,
+        ...defaultProps,
         data: prices,
-        xField: 'date',
         yField: 'price',
-        x,
-        axis: () => { },
-        theme,
-        colour: 'blue',
-        strokeWidth: 2
+        colour: 'blue'
     })
 
     const palette = theme === 'light' ? colours.paletteLightBg : colours.paletteDarkBg
@@ -109,5 +130,13 @@ export const addChart = async (chartProps, theme = 'light') => {
         yRightFormat: d3.format('.1s'),
         hideXdomain: true,
         hideYdomain: true
+    })
+
+    addLegend({
+        chart,
+        legends: ['Price', 'Tweets'],
+        colours: [palette.blue, palette.orange],
+        xPosition: -margin.left,
+        yPosition: -12
     })
 }
