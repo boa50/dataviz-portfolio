@@ -1,4 +1,4 @@
-import { colours, addAxis, formatCurrency, addLegend, addLineTooltip } from "../node_modules/visual-components/index.js"
+import { colours, addAxis, formatCurrency, addLegend, addLineTooltip, addVerticalTooltip } from "../node_modules/visual-components/index.js"
 
 const line = ({
     chartProps,
@@ -10,7 +10,8 @@ const line = ({
     x,
     axis,
     strokeWidth = 1,
-    legend = true
+    legend = true,
+    tooltip = true
 }) => {
     const { chart, width, height, margin } = chartProps
     const palette = theme === 'light' ? colours.paletteLightBg : colours.paletteDarkBg
@@ -62,22 +63,24 @@ const line = ({
         })
     }
 
-    addLineTooltip({
-        chart,
-        htmlText: d => `
-        <strong>${d[xField]}</strong>
-        <div style="display: flex; justify-content: space-between">
-            <span>Value:&emsp;</span>
-            <span>${d[yField]}</span>
-        </div>
-        `,
-        colour,
-        data,
-        cx: d => x(d[xField]),
-        cy: d => y(d[yField]),
-        chartWidth: width,
-        chartHeight: height
-    })
+    if (tooltip) {
+        addLineTooltip({
+            chart,
+            htmlText: d => `
+            <strong>${d[xField]}</strong>
+            <div style="display: flex; justify-content: space-between">
+                <span>Value:&emsp;</span>
+                <span>${d[yField]}</span>
+            </div>
+            `,
+            colour,
+            data,
+            cx: d => x(d[xField]),
+            cy: d => y(d[yField]),
+            chartWidth: width,
+            chartHeight: height
+        })
+    }
 
     return { x, y }
 }
@@ -114,7 +117,8 @@ export const addChart = async (chartProps, theme = 'light') => {
         axis: () => { },
         theme,
         strokeWidth: 2,
-        legend: false
+        legend: false,
+        tooltip: false
     }
 
     const tweetsAxes = line({
@@ -156,4 +160,32 @@ export const addChart = async (chartProps, theme = 'light') => {
         xPosition: -margin.left,
         yPosition: -12
     })
+
+    const getTweets = date => {
+        const filtered = tweets.filter(t => t.date.getTime() == date.getTime())
+        const nTweets = filtered.length > 0 ? filtered[0].tweets : 0
+
+        return nTweets
+    }
+
+    const joinedData = prices.map(d => {
+        return {
+            date: d.date,
+            tweets: getTweets(d.date),
+            price: d.price
+        }
+    })
+
+    // addVerticalTooltip({
+    //     chart,
+    //     htmlText: d => `
+    //     <strong>${TITLE}</strong>
+    //     <div style="display: flex; justify-content: space-between">
+    //         <span>FIELD_NAME:&emsp;</span>
+    //         <span>${FIELD_VALUE}</span>
+    //     </div>
+    //     `,
+
+    // })
+
 }
