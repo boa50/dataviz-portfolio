@@ -83,10 +83,9 @@ export const addChart = async (chartProps, theme = 'light') => {
         y: pricesAxes.y,
         yRight: tweetsAxes.y,
         xLabel: 'Date',
-        yLabel: 'Price',
-        yRightLabel: 'Number of tweets',
-        // yFormat: d => formatCurrency(d, false),
-        yFormat: d3.format('.2s'),
+        yLabel: 'Price (U$D)',
+        yRightLabel: 'Tweets',
+        yFormat: d => formatCurrency(d, false, 1),
         yRightFormat: d3.format('.2s')
     })
 }
