@@ -1,4 +1,4 @@
-import { colours, addAxis, formatCurrency, addLegend } from "../node_modules/visual-components/index.js"
+import { colours, addAxis, formatCurrency, addLegend, addLineTooltip } from "../node_modules/visual-components/index.js"
 
 const line = ({
     chartProps,
@@ -61,6 +61,23 @@ const line = ({
             yPosition: -12
         })
     }
+
+    addLineTooltip({
+        chart,
+        htmlText: d => `
+        <strong>${d[xField]}</strong>
+        <div style="display: flex; justify-content: space-between">
+            <span>Value:&emsp;</span>
+            <span>${d[yField]}</span>
+        </div>
+        `,
+        colour,
+        data,
+        cx: d => x(d[xField]),
+        cy: d => y(d[yField]),
+        chartWidth: width,
+        chartHeight: height
+    })
 
     return { x, y }
 }
