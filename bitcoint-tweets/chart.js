@@ -1,6 +1,6 @@
 import { colours, addAxis, formatCurrency } from "../node_modules/visual-components/index.js"
 
-const line = ({ chartProps, data, theme = 'light', colour = 'blue', xField, yField, x, axis }) => {
+const line = ({ chartProps, data, theme = 'light', colour = 'blue', xField, yField, x, axis, strokeWidth = 1 }) => {
     const { chart, width, height } = chartProps
     const palette = theme === 'light' ? colours.paletteLightBg : colours.paletteDarkBg
 
@@ -25,7 +25,7 @@ const line = ({ chartProps, data, theme = 'light', colour = 'blue', xField, yFie
         .join('path')
         .attr('fill', 'none')
         .attr('stroke', palette[colour])
-        .attr('stroke-width', 1)
+        .attr('stroke-width', strokeWidth)
         .attr('d', line)
 
     if (axis !== undefined) {
@@ -69,8 +69,28 @@ export const addChart = async (chartProps, theme = 'light') => {
         .domain(d3.extent(prices, d => d.date))
         .range([0, width])
 
-    const tweetsAxes = line({ chartProps, data: tweets, xField: 'date', yField: 'tweets', x, axis: () => { }, theme, colour: 'orange' })
-    const pricesAxes = line({ chartProps, data: prices, xField: 'date', yField: 'price', x, axis: () => { }, theme, colour: 'blue' })
+    const tweetsAxes = line({
+        chartProps,
+        data: tweets,
+        xField: 'date',
+        yField: 'tweets',
+        x,
+        axis: () => { },
+        theme,
+        colour: 'orange',
+        strokeWidth: 2
+    })
+    const pricesAxes = line({
+        chartProps,
+        data: prices,
+        xField: 'date',
+        yField: 'price',
+        x,
+        axis: () => { },
+        theme,
+        colour: 'blue',
+        strokeWidth: 2
+    })
 
     const palette = theme === 'light' ? colours.paletteLightBg : colours.paletteDarkBg
 
@@ -86,6 +106,8 @@ export const addChart = async (chartProps, theme = 'light') => {
         yLabel: 'Price (U$D)',
         yRightLabel: 'Tweets',
         yFormat: d => formatCurrency(d, false, 1),
-        yRightFormat: d3.format('.2s')
+        yRightFormat: d3.format('.1s'),
+        hideXdomain: true,
+        hideYdomain: true
     })
 }
