@@ -1,92 +1,20 @@
-import { colours, addAxis, formatCurrency, addLegend, addLineTooltip, addVerticalTooltip } from "../node_modules/visual-components/index.js"
+import { colours, addAxis, formatCurrency, addLegend, addVerticalTooltip, plot } from "../node_modules/visual-components/index.js"
 
-const line = ({
-    chartProps,
-    data,
-    theme = 'light',
-    colour = 'blue',
-    xField,
-    yField,
-    x,
-    y,
-    axis,
-    strokeWidth = 1,
-    legend = true,
-    tooltip = true
-}) => {
+export const addChart = async (chartProps, theme = 'light') => {
+    const { data, prices, tweets } = await prepareData()
     const { chart, width, height, margin } = chartProps
     const palette = theme === 'light' ? colours.paletteLightBg : colours.paletteDarkBg
 
-    x = x !== undefined ? x : d3
-        .scaleUtc()
-        .domain(d3.extent(data, d => d[xField]))
-        .range([0, width])
+    const { x, y } = createAxes(data, width, height)
 
-    y = y !== undefined ? y : d3
-        .scaleLinear()
-        .domain([0, d3.max(data, d => d[yField]) * 1.05])
-        .range([height, 0])
-
-    const line = d3
-        .line()
-        .x(d => x(d[xField]))
-        .y(d => y(d[yField]))
-
-    chart
-        .selectAll('.data-line')
-        .data([data])
-        .join('path')
-        .attr('fill', 'none')
-        .attr('stroke', palette[colour])
-        .attr('stroke-width', strokeWidth)
-        .attr('d', line)
-
-    if (axis !== undefined) {
-        axis()
-    } else {
-        addAxis({
-            chart,
-            width,
-            height,
-            colour: palette.axis,
-            x,
-            y
-        })
-    }
-
-    if (legend) {
-        addLegend({
-            chart,
-            legends: [yField].map(d => d.charAt(0).toUpperCase() + d.slice(1)),
-            colours: [colour],
-            xPosition: -margin.left,
-            yPosition: -12
-        })
-    }
-
-    if (tooltip) {
-        addLineTooltip({
-            chart,
-            htmlText: d => `
-            <strong>${d[xField]}</strong>
-            <div style="display: flex; justify-content: space-between">
-                <span>Value:&emsp;</span>
-                <span>${d[yField]}</span>
-            </div>
-            `,
-            colour,
-            data,
-            cx: d => x(d[xField]),
-            cy: d => y(d[yField]),
-            chartWidth: width,
-            chartHeight: height
-        })
-    }
-
-    return { x, y }
+    plotLines(chartProps, x, y, theme, tweets, prices)
+    plotImage(chart, x, y)
+    plotAxis(chart, width, height, palette, x, y)
+    plotLegend(chart, palette, margin)
+    plotTooltip(data, chart, x, y, width, height, palette)
 }
 
-export const addChart = async (chartProps, theme = 'light') => {
+async function prepareData() {
     const data = await d3.csv('bitcoint-tweets/data/dataset.csv')
         .then(dt => dt.map(d => {
             return {
@@ -99,8 +27,10 @@ export const addChart = async (chartProps, theme = 'light') => {
     const prices = data.map(d => { return { date: d.date, price: d.price } })
     const tweets = data.map(d => { return { date: d.date, tweets: d.tweets } })
 
-    const { chart, width, height, margin } = chartProps
+    return { data, prices, tweets }
+}
 
+function createAxes(data, width, height) {
     const x = d3
         .scaleUtc()
         .domain(d3.extent(data, d => d.date))
@@ -111,6 +41,10 @@ export const addChart = async (chartProps, theme = 'light') => {
         .domain([0, d3.max(data, d => d.price) * 1.1])
         .range([height, 0])
 
+    return { x, y }
+}
+
+function plotLines(chartProps, x, y, theme, tweets, prices) {
     const defaultProps = {
         chartProps,
         xField: 'date',
@@ -123,21 +57,21 @@ export const addChart = async (chartProps, theme = 'light') => {
         tooltip: false
     }
 
-    line({
+    plot().line({
         ...defaultProps,
         data: tweets,
         yField: 'tweets',
         colour: 'orange'
     })
-    line({
+    plot().line({
         ...defaultProps,
         data: prices,
         yField: 'price',
         colour: 'blue'
     })
+}
 
-    const palette = theme === 'light' ? colours.paletteLightBg : colours.paletteDarkBg
-
+function plotImage(chart, x, y) {
     chart.append('svg:image')
         .attr('x', x(new Date('2022/10/01')))
         .attr('y', y(70000))
@@ -145,7 +79,9 @@ export const addChart = async (chartProps, theme = 'light') => {
         .attr('height', 86)
         .attr('opacity', 0.25)
         .attr('xlink:href', 'bitcoint-tweets/img/bitcoin.webp')
+}
 
+function plotAxis(chart, width, height, palette, x, y) {
     addAxis({
         chart,
         width,
@@ -162,7 +98,9 @@ export const addChart = async (chartProps, theme = 'light') => {
         hideXdomain: true,
         hideYdomain: true
     })
+}
 
+function plotLegend(chart, palette, margin) {
     addLegend({
         chart,
         legends: ['Price', 'Tweets'],
@@ -170,7 +108,9 @@ export const addChart = async (chartProps, theme = 'light') => {
         xPosition: -margin.left,
         yPosition: -12
     })
+}
 
+function plotTooltip(data, chart, x, y, width, height, palette) {
     const tooltipData = {}
     for (let i = 0; i < data.length; i++) {
         tooltipData[data[i].date.getTime()] = {
