@@ -24,6 +24,7 @@ print(df.tail())
 
 df.to_csv(get_path("tweets.csv"), index=False)
 
+
 ### prices
 df = pd.read_csv(get_path("BTC-USD.csv"), usecols=["Date", "Close"])
 
@@ -33,3 +34,15 @@ print(df.head())
 print(df.isna().sum())
 
 df.to_csv(get_path("prices.csv"), index=False)
+
+
+### merged dataset
+prices = pd.read_csv(get_path("prices.csv"))
+tweets = pd.read_csv(get_path("tweets.csv"))
+
+df = pd.merge(prices, tweets, how="left", on="date")
+
+df.columns = ["date", "price", "tweets"]
+print(df.head())
+
+df.to_csv(get_path("dataset.csv"), index=False)
