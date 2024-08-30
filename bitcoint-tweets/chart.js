@@ -86,35 +86,17 @@ const line = ({
 }
 
 export const addChart = async (chartProps, theme = 'light') => {
-    const tweets = await d3.csv('bitcoint-tweets/data/tweets.csv')
-        .then(data => data.map(d => {
+    const data = await d3.csv('bitcoint-tweets/data/dataset.csv')
+        .then(dt => dt.map(d => {
             return {
                 date: new Date(d.date + 'T00:00:00Z'),
-                tweets: +d.count
-            }
-        }).sort((a, b) => a.date - b.date)
-        )
-
-    const prices = await d3.csv('bitcoint-tweets/data/prices.csv')
-        .then(data => data.map(d => {
-            return {
-                date: new Date(d.date + 'T00:00:00Z'),
-                price: +d.close
+                price: +d.price,
+                tweets: d.tweets !== '' ? +d.tweets : 0
             }
         }))
 
-    const data = []
-    await d3.csv('bitcoint-tweets/data/dataset.csv')
-        .then(dt => dt.forEach(d => {
-            dt.columns.slice(1).forEach(column => {
-                data.push({
-                    date: new Date(d.date + 'T00:00:00Z'),
-                    group: column,
-                    value: d[column] !== '' ? +d[column] : undefined
-                })
-            })
-        }))
-
+    const prices = data.map(d => { return { date: d.date, price: d.price } })
+    const tweets = data.map(d => { return { date: d.date, tweets: d.tweets } })
 
     const { chart, width, height, margin } = chartProps
 
@@ -174,28 +156,13 @@ export const addChart = async (chartProps, theme = 'light') => {
         yPosition: -12
     })
 
-    const getTweets = date => {
-        const filtered = tweets.filter(t => t.date.getTime() == date.getTime())
-        const nTweets = filtered.length > 0 ? filtered[0].tweets : 0
-
-        return nTweets
-    }
-
-    const joinedData = prices.map(d => {
-        return {
-            date: d.date,
-            tweets: getTweets(d.date),
-            price: d.price
-        }
-    })
-
     const tooltipData = {}
-    for (let i = 0; i < joinedData.length; i++) {
-        tooltipData[joinedData[i].date.getTime()] = {
-            x: joinedData[i].date.getTime(),
-            ys: [joinedData[i].price, joinedData[i].tweets],
-            price: joinedData[i].price,
-            tweets: joinedData[i].tweets
+    for (let i = 0; i < data.length; i++) {
+        tooltipData[data[i].date.getTime()] = {
+            x: data[i].date.getTime(),
+            ys: [data[i].price, data[i].tweets],
+            price: data[i].price,
+            tweets: data[i].tweets
         }
     }
 
@@ -205,7 +172,7 @@ export const addChart = async (chartProps, theme = 'light') => {
         <strong>${new Date(d.x).toLocaleDateString()}</strong>
         <div style="display: flex; justify-content: space-between">
             <span>Price:&emsp;</span>
-            <span>${d.price}</span>
+            <span>${formatCurrency(d.price, true)}</span>
         </div>
         <div style="display: flex; justify-content: space-between">
             <span>Tweets:&emsp;</span>
@@ -217,7 +184,7 @@ export const addChart = async (chartProps, theme = 'light') => {
         x,
         y: pricesAxes.y,
         colour: palette.axis,
-        data: joinedData,
+        data: data,
         xVariable: 'date',
         tooltipData,
         keyFunction: d => d.getTime()
