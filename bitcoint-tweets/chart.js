@@ -103,6 +103,19 @@ export const addChart = async (chartProps, theme = 'light') => {
             }
         }))
 
+    const data = []
+    await d3.csv('bitcoint-tweets/data/dataset.csv')
+        .then(dt => dt.forEach(d => {
+            dt.columns.slice(1).forEach(column => {
+                data.push({
+                    date: new Date(d.date + 'T00:00:00Z'),
+                    group: column,
+                    value: d[column] !== '' ? +d[column] : undefined
+                })
+            })
+        }))
+
+
     const { chart, width, height, margin } = chartProps
 
     const x = d3
@@ -176,16 +189,38 @@ export const addChart = async (chartProps, theme = 'light') => {
         }
     })
 
-    // addVerticalTooltip({
-    //     chart,
-    //     htmlText: d => `
-    //     <strong>${TITLE}</strong>
-    //     <div style="display: flex; justify-content: space-between">
-    //         <span>FIELD_NAME:&emsp;</span>
-    //         <span>${FIELD_VALUE}</span>
-    //     </div>
-    //     `,
+    const tooltipData = {}
+    for (let i = 0; i < joinedData.length; i++) {
+        tooltipData[joinedData[i].date.getTime()] = {
+            x: joinedData[i].date.getTime(),
+            ys: [joinedData[i].price, joinedData[i].tweets],
+            price: joinedData[i].price,
+            tweets: joinedData[i].tweets
+        }
+    }
 
-    // })
+    addVerticalTooltip({
+        chart,
+        htmlText: d => `
+        <strong>${new Date(d.x).toLocaleDateString()}</strong>
+        <div style="display: flex; justify-content: space-between">
+            <span>Price:&emsp;</span>
+            <span>${d.price}</span>
+        </div>
+        <div style="display: flex; justify-content: space-between">
+            <span>Tweets:&emsp;</span>
+            <span>${d.tweets}</span>
+        </div>
+        `,
+        chartWidth: width,
+        chartHeight: height,
+        x,
+        y: pricesAxes.y,
+        colour: palette.axis,
+        data: joinedData,
+        xVariable: 'date',
+        tooltipData,
+        keyFunction: d => d.getTime()
+    })
 
 }
