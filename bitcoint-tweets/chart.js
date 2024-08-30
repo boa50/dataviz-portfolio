@@ -123,13 +123,13 @@ export const addChart = async (chartProps, theme = 'light') => {
         tooltip: false
     }
 
-    const tweetsAxes = line({
+    line({
         ...defaultProps,
         data: tweets,
         yField: 'tweets',
         colour: 'orange'
     })
-    const pricesAxes = line({
+    line({
         ...defaultProps,
         data: prices,
         yField: 'price',
@@ -138,14 +138,22 @@ export const addChart = async (chartProps, theme = 'light') => {
 
     const palette = theme === 'light' ? colours.paletteLightBg : colours.paletteDarkBg
 
+    chart.append('svg:image')
+        .attr('x', x(new Date('2022/10/01')))
+        .attr('y', y(70000))
+        .attr('width', 86)
+        .attr('height', 86)
+        .attr('opacity', 0.25)
+        .attr('xlink:href', 'bitcoint-tweets/img/bitcoin.webp')
+
     addAxis({
         chart,
         width,
         height,
         colour: palette.axis,
         x,
-        y: pricesAxes.y,
-        yRight: tweetsAxes.y,
+        y,
+        yRight: y,
         xLabel: 'Date',
         yLabel: 'Price (U$D)',
         yRightLabel: 'Tweets',
@@ -189,7 +197,7 @@ export const addChart = async (chartProps, theme = 'light') => {
         chartWidth: width,
         chartHeight: height,
         x,
-        y: pricesAxes.y,
+        y,
         colour: palette.axis,
         data: data,
         xVariable: 'date',
