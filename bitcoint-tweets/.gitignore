@@ -1,2 +1,2 @@
-data/Bitcoin_tweets.csv
-data/BTC-USD.csv
+data/*.csv
+data/dataset.csv
