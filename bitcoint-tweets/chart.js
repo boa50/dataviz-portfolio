@@ -8,6 +8,7 @@ const line = ({
     xField,
     yField,
     x,
+    y,
     axis,
     strokeWidth = 1,
     legend = true,
@@ -21,7 +22,7 @@ const line = ({
         .domain(d3.extent(data, d => d[xField]))
         .range([0, width])
 
-    const y = d3
+    y = y !== undefined ? y : d3
         .scaleLinear()
         .domain([0, d3.max(data, d => d[yField]) * 1.05])
         .range([height, 0])
@@ -102,13 +103,19 @@ export const addChart = async (chartProps, theme = 'light') => {
 
     const x = d3
         .scaleUtc()
-        .domain(d3.extent(prices, d => d.date))
+        .domain(d3.extent(data, d => d.date))
         .range([0, width])
+
+    const y = d3
+        .scaleLinear()
+        .domain([0, d3.max(data, d => d.price) * 1.1])
+        .range([height, 0])
 
     const defaultProps = {
         chartProps,
         xField: 'date',
         x,
+        y,
         axis: () => { },
         theme,
         strokeWidth: 2,
@@ -189,5 +196,4 @@ export const addChart = async (chartProps, theme = 'light') => {
         tooltipData,
         keyFunction: d => d.getTime()
     })
-
 }
