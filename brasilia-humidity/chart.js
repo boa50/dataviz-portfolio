@@ -24,6 +24,11 @@ export const addChart = async (chartProps, theme = 'light') => {
         .domain([0, 100])
         .range([height, 0])
 
+    const colour = d3
+        .scaleSequential()
+        .domain(d3.extent(data, d => d.humidityMed))
+        .range([palette.orange, palette.blue])
+
     chart
         .selectAll('.data-point')
         .data(data)
@@ -33,7 +38,28 @@ export const addChart = async (chartProps, theme = 'light') => {
         .attr('y', d => y(d.humidityMax))
         .attr('width', x.bandwidth())
         .attr('height', d => y(d.humidityMin) - y(d.humidityMax))
-        .attr('fill', palette.blue)
+        .attr('fill', d => colour(d.humidityMed))
+
+    chart
+        .selectAll('.data-med-line')
+        .data(data)
+        .join('line')
+        .attr('class', 'data-med-line')
+        .attr('x1', d => x(d.date))
+        .attr('x2', d => x(d.date) + x.bandwidth())
+        .attr('y1', d => y(d.humidityMed))
+        .attr('y2', d => y(d.humidityMed))
+        .attr('stroke', palette.contrasting)
+        .attr('stroke-width', 2)
+
+    chart
+        .append('line')
+        .attr('x1', x(x.domain()[0]))
+        .attr('x2', width)
+        .attr('y1', y(20))
+        .attr('y2', y(20))
+        .attr('stroke', palette.vermillion)
+        .attr('stroke-width', 2)
 
 
 
