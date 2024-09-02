@@ -3,7 +3,16 @@ import { colours, addAxis } from "../node_modules/visual-components/index.js"
 export const addChart = async (chartProps, theme = 'light') => {
     const { chart, width, height } = chartProps
     const palette = theme === 'light' ? colours.paletteLightBg : colours.paletteDarkBg
-    const data = await d3.csv('brasilia-humidity/data/dataset.csv')
+    const data = await prepareData()
+
+    const { x, y } = createAxes(data, width, height)
+    plotBars(data, chart, palette, x, y)
+    plotDesertifiedZone(chart, x, y, width, palette)
+    plotAxis(chart, width, height, palette, x, y)
+}
+
+async function prepareData() {
+    return await d3.csv('brasilia-humidity/data/dataset.csv')
         .then(dt => dt.map(d => {
             return {
                 ...d,
@@ -12,7 +21,9 @@ export const addChart = async (chartProps, theme = 'light') => {
                 humidityMin: +d.humidityMin
             }
         }))
+}
 
+function createAxes(data, width, height) {
     const x = d3
         .scaleBand()
         .domain(data.map(d => d.date))
@@ -24,6 +35,10 @@ export const addChart = async (chartProps, theme = 'light') => {
         .domain([0, 100])
         .range([height, 0])
 
+    return { x, y }
+}
+
+function plotBars(data, chart, palette, x, y) {
     const colour = d3
         .scaleSequential()
         .domain(d3.extent(data, d => d.humidityMed))
@@ -51,7 +66,9 @@ export const addChart = async (chartProps, theme = 'light') => {
         .attr('y2', d => y(d.humidityMed))
         .attr('stroke', palette.contrasting)
         .attr('stroke-width', 2)
+}
 
+function plotDesertifiedZone(chart, x, y, width, palette) {
     chart
         .append('line')
         .attr('x1', x(x.domain()[0]))
@@ -60,9 +77,9 @@ export const addChart = async (chartProps, theme = 'light') => {
         .attr('y2', y(20))
         .attr('stroke', palette.vermillion)
         .attr('stroke-width', 2)
+}
 
-
-
+function plotAxis(chart, width, height, palette, x, y) {
     addAxis({
         chart,
         height,
