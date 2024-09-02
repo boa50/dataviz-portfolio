@@ -7,7 +7,7 @@ export const addChart = async (chartProps, theme = 'light') => {
 
     const { x, y } = createAxes(data, width, height)
     plotBars(data, chart, palette, x, y)
-    plotDesertifiedZone(chart, x, y, width, palette)
+    plotDesertlikeZone(chart, x, y, width, height, palette)
     plotAxis(chart, width, height, palette, x, y)
 }
 
@@ -68,15 +68,48 @@ function plotBars(data, chart, palette, x, y) {
         .attr('stroke-width', 2)
 }
 
-function plotDesertifiedZone(chart, x, y, width, palette) {
+function plotDesertlikeZone(chart, x, y, width, height, palette) {
+    // chart
+    //     .append('line')
+    //     .attr('x1', x(x.domain()[0]))
+    //     .attr('x2', width)
+    //     .attr('y1', y(20))
+    //     .attr('y2', y(20))
+    //     .attr('stroke', palette.vermillion)
+    //     .attr('stroke-width', 2)
+
     chart
-        .append('line')
-        .attr('x1', x(x.domain()[0]))
-        .attr('x2', width)
-        .attr('y1', y(20))
-        .attr('y2', y(20))
-        .attr('stroke', palette.vermillion)
-        .attr('stroke-width', 2)
+        .append('rect')
+        .attr('x', x(x.domain()[0]))
+        .attr('y', y(20))
+        .attr('width', width)
+        .attr('height', height - y(20))
+        .attr('fill', palette.vermillion)
+        .attr('opacity', 0.25)
+
+    const textLabelBackground = chart
+        .append('rect')
+
+    const textLabel = chart
+        .append('text')
+        .attr('x', width / 2)
+        .attr('y', y(10))
+        .attr('dominant-baseline', 'middle')
+        .attr('text-anchor', 'middle')
+        .attr('font-size', '1rem')
+        .attr('font-weight', 500)
+        .attr('fill', palette.contrasting)
+        .text('Desertlike Zone')
+
+
+    const textLabelBackgroundSquare = textLabel.node().getBBox()
+    textLabelBackground
+        .attr('x', textLabelBackgroundSquare.x - 6)
+        .attr('y', textLabelBackgroundSquare.y - 4)
+        .attr('width', textLabelBackgroundSquare.width + 12)
+        .attr('height', textLabelBackgroundSquare.height + 8)
+        .attr('fill', palette.vermillion)
+        .attr('opacity', 0.75)
 }
 
 function plotAxis(chart, width, height, palette, x, y) {
@@ -103,6 +136,8 @@ function plotAxis(chart, width, height, palette, x, y) {
         xLabel: 'Date',
         yLabel: 'Humidity Level',
         xFormat: d => datesToShow.includes(d) ? formatDateString(d) : '',
-        yFormat: d => d3.format('.0%')(d / 100)
+        yFormat: d => d3.format('.0%')(d / 100),
+        hideXdomain: true,
+        hideYdomain: true
     })
 }
