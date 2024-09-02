@@ -23,6 +23,6 @@ addBitcoinPricesTweets(
 )
 
 addBrasiliaHumidity(
-    getChart({ id: brasiliaHumidityId }),
+    getChart({ id: brasiliaHumidityId, margin: getMargin({ left: 76, right: 32, top: 18 }) }),
     'dark'
 )

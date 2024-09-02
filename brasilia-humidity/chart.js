@@ -80,12 +80,29 @@ function plotDesertifiedZone(chart, x, y, width, palette) {
 }
 
 function plotAxis(chart, width, height, palette, x, y) {
+    const xDomainLength = x.domain().length
+    const xDomainDivisor = (multiplier = 1) => Math.round(x.domain().length / 4 * multiplier)
+    const datesToShow = [
+        x.domain()[0],
+        x.domain()[xDomainDivisor()],
+        x.domain()[xDomainDivisor(2)],
+        x.domain()[xDomainDivisor(3)],
+        x.domain()[xDomainLength - 1]
+    ]
+
+    const formatDateString = dt =>
+        new Date(dt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+
     addAxis({
         chart,
         height,
         width,
         colour: palette.axis,
-        // x,
-        y
+        x,
+        y,
+        xLabel: 'Date',
+        yLabel: 'Humidity Level',
+        xFormat: d => datesToShow.includes(d) ? formatDateString(d) : '',
+        yFormat: d => d3.format('.0%')(d / 100)
     })
 }
