@@ -1,4 +1,4 @@
-import { colours, addAxis, addPattern, addColourLegend } from "../node_modules/visual-components/index.js"
+import { colours, addAxis, addPattern, addColourLegend, addHighlightTooltip } from "../node_modules/visual-components/index.js"
 
 export const addChart = async (chartProps, theme = 'light') => {
     const { chart, width, height, margin } = chartProps
@@ -20,6 +20,7 @@ export const addChart = async (chartProps, theme = 'light') => {
     plotDesertlikeZone(chart, x, y, width, height, palette)
     plotAxis(chart, width, height, palette, x, y)
     plotColourLegend(chart, colour, palette, width, margin)
+    plotTooltip(chart, width, height, x)
 }
 
 async function prepareData() {
@@ -127,9 +128,6 @@ function plotAxis(chart, width, height, palette, x, y) {
         x.domain()[xDomainLength - 1]
     ]
 
-    const getDaysWithoutRaining = dt =>
-        (new Date(dt) - new Date(x.domain()[0])) / (1000 * 60 * 60 * 24)
-
     addAxis({
         chart,
         height,
@@ -139,8 +137,8 @@ function plotAxis(chart, width, height, palette, x, y) {
         y,
         xLabel: 'Days Without Raining',
         yLabel: 'Humidity Level',
-        xFormat: d => datesToShow.includes(d) ? getDaysWithoutRaining(d) : '',
-        yFormat: d => d3.format('.0%')(d / 100),
+        xFormat: d => datesToShow.includes(d) ? getDaysWithoutRaining(d, x) : '',
+        yFormat: formatHumidity,
         hideXdomain: true,
         hideYdomain: true
     })
@@ -162,6 +160,41 @@ function plotColourLegend(chart, colour, palette, width, margin) {
         textColour: palette.axis,
         xPosition: width - legendWidth - 8,
         yPosition: -margin.top,
-        axisTickFormat: d => d3.format('.0%')(d / 100)
+        axisTickFormat: formatHumidity
     })
+}
+
+function plotTooltip(chart, width, height, x) {
+    addHighlightTooltip({
+        chart,
+        htmlText: d => `
+        <strong>${getDaysWithoutRaining(d.date, x)} days without raining</strong>
+        <br>
+        <strong>Humidity Levels</strong>
+        <div style="display: flex; justify-content: space-between">
+            <span>Maximum:&emsp;</span>
+            <span>${formatHumidity(d.humidityMax)}</span>
+        </div>
+        <div style="display: flex; justify-content: space-between">
+            <span>Median:&emsp;</span>
+            <span>${formatHumidity(d.humidityMed)}</span>
+        </div>
+        <div style="display: flex; justify-content: space-between">
+            <span>Minimum:&emsp;</span>
+            <span>${formatHumidity(d.humidityMin)}</span>
+        </div>
+        `,
+        elements: d3.selectAll('.data-point'),
+        initialOpacity: 1,
+        chartWidth: width,
+        chartHeight: height
+    })
+}
+
+function formatHumidity(d) {
+    return d3.format('.0%')(d / 100)
+}
+
+function getDaysWithoutRaining(dt, x) {
+    return (new Date(dt) - new Date(x.domain()[0])) / (1000 * 60 * 60 * 24)
 }
