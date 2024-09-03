@@ -12,7 +12,7 @@ const bitcoinId = appendChartContainer({
 const brasiliaHumidityId = appendChartContainer({
     idNum: 2,
     chartTitle: 'Brasília Humidity',
-    chartSubtitle: '',
+    chartSubtitle: 'Brasília has be suffering from a severe drought in 2024, with more than 130 days without raining. It causes the huidity to decrese to levels similar to a desert.',
     theme: 'darkGradient'
 })
 await new Promise(r => setTimeout(r, 1));
