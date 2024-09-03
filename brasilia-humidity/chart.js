@@ -145,8 +145,8 @@ function plotAxis(chart, width, height, palette, x, y) {
         x.domain()[xDomainLength - 1]
     ]
 
-    const formatDateString = dt =>
-        new Date(dt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+    const getDaysWithoutRaining = dt =>
+        (new Date(dt) - new Date(x.domain()[0])) / (1000 * 60 * 60 * 24)
 
     addAxis({
         chart,
@@ -155,9 +155,9 @@ function plotAxis(chart, width, height, palette, x, y) {
         colour: palette.axis,
         x,
         y,
-        xLabel: 'Date',
+        xLabel: 'Days Without Raining',
         yLabel: 'Humidity Level',
-        xFormat: d => datesToShow.includes(d) ? formatDateString(d) : '',
+        xFormat: d => datesToShow.includes(d) ? getDaysWithoutRaining(d) : '',
         yFormat: d => d3.format('.0%')(d / 100),
         hideXdomain: true,
         hideYdomain: true
