@@ -34,7 +34,7 @@ export const plotAxis = (chart, width, height, palette, x, y) => {
         colour: palette.axis,
         x,
         y,
-        xLabel: 'Days Without Raining',
+        xLabel: 'Days Without Rain',
         yLabel: 'Humidity Level',
         xFormat: d => datesToShow.includes(d) ? getDaysWithoutRaining(d, x) : '',
         yFormat: formatHumidity,

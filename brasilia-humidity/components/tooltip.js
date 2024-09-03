@@ -5,7 +5,7 @@ export const plotTooltip = (chart, width, height, x) => {
     addHighlightTooltip({
         chart,
         htmlText: d => `
-        <strong>${getDaysWithoutRaining(d.date, x)} days without raining</strong>
+        <strong>${getDaysWithoutRaining(d.date, x)} days without rain</strong>
         <br>
         <strong>Humidity Levels</strong>
         <div style="display: flex; justify-content: space-between">
