@@ -1,7 +1,7 @@
-import { colours, addAxis, addPattern } from "../node_modules/visual-components/index.js"
+import { colours, addAxis, addPattern, addColourLegend } from "../node_modules/visual-components/index.js"
 
 export const addChart = async (chartProps, theme = 'light') => {
-    const { chart, width, height } = chartProps
+    const { chart, width, height, margin } = chartProps
     const palette = theme === 'light' ? colours.paletteLightBg : colours.paletteDarkBg
     const data = await prepareData()
 
@@ -9,6 +9,30 @@ export const addChart = async (chartProps, theme = 'light') => {
     plotBars(data, chart, palette, x, y)
     plotDesertlikeZone(chart, x, y, width, height, palette)
     plotAxis(chart, width, height, palette, x, y)
+
+    const legendWidth = 100
+    const colour = d3
+        .scaleSequential()
+        // .domain(d3.extent(data, d => d.humidityMed))
+        .domain([0, 100])
+        .range([palette.orange, palette.blue])
+
+    const colourLegendAxis = d3
+        .scaleLinear()
+        .domain(colour.domain())
+        .range([0, legendWidth])
+
+    addColourLegend({
+        chart,
+        title: 'Humidity Level',
+        colourScale: colour,
+        width: legendWidth,
+        axis: colourLegendAxis,
+        textColour: palette.axis,
+        xPosition: width - legendWidth - 8,
+        yPosition: -margin.top,
+        axisTickFormat: d => d3.format('.0%')(d / 100)
+    })
 }
 
 async function prepareData() {
