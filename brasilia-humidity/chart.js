@@ -5,34 +5,21 @@ export const addChart = async (chartProps, theme = 'light') => {
     const palette = theme === 'light' ? colours.paletteLightBg : colours.paletteDarkBg
     const data = await prepareData()
 
-    const { x, y } = createAxes(data, width, height)
-    plotBars(data, chart, palette, x, y)
-    plotDesertlikeZone(chart, x, y, width, height, palette)
-    plotAxis(chart, width, height, palette, x, y)
-
-    const legendWidth = 100
     const colour = d3
         .scaleSequential()
-        // .domain(d3.extent(data, d => d.humidityMed))
         .domain([0, 100])
-        .range([palette.orange, palette.blue])
+        .interpolator(d3.interpolateRgbBasis([
+            d3.hsl(palette.orange).darker(0.5),
+            palette.orange,
+            palette.blue,
+            d3.hsl(palette.blue).darker(0.5)
+        ]))
 
-    const colourLegendAxis = d3
-        .scaleLinear()
-        .domain(colour.domain())
-        .range([0, legendWidth])
-
-    addColourLegend({
-        chart,
-        title: 'Humidity Level',
-        colourScale: colour,
-        width: legendWidth,
-        axis: colourLegendAxis,
-        textColour: palette.axis,
-        xPosition: width - legendWidth - 8,
-        yPosition: -margin.top,
-        axisTickFormat: d => d3.format('.0%')(d / 100)
-    })
+    const { x, y } = createAxes(data, width, height)
+    plotBars(data, chart, palette, x, y, colour)
+    plotDesertlikeZone(chart, x, y, width, height, palette)
+    plotAxis(chart, width, height, palette, x, y)
+    plotColourLegend(chart, colour, palette, width, margin)
 }
 
 async function prepareData() {
@@ -62,12 +49,7 @@ function createAxes(data, width, height) {
     return { x, y }
 }
 
-function plotBars(data, chart, palette, x, y) {
-    const colour = d3
-        .scaleSequential()
-        .domain(d3.extent(data, d => d.humidityMed))
-        .range([palette.orange, palette.blue])
-
+function plotBars(data, chart, palette, x, y, colour) {
     chart
         .selectAll('.data-point')
         .data(data)
@@ -161,5 +143,25 @@ function plotAxis(chart, width, height, palette, x, y) {
         yFormat: d => d3.format('.0%')(d / 100),
         hideXdomain: true,
         hideYdomain: true
+    })
+}
+
+function plotColourLegend(chart, colour, palette, width, margin) {
+    const legendWidth = 125
+    const colourLegendAxis = d3
+        .scaleLinear()
+        .domain(colour.domain())
+        .range([0, legendWidth])
+
+    addColourLegend({
+        chart,
+        title: 'Median Humidity Level',
+        colourScale: colour,
+        width: legendWidth,
+        axis: colourLegendAxis,
+        textColour: palette.axis,
+        xPosition: width - legendWidth - 8,
+        yPosition: -margin.top,
+        axisTickFormat: d => d3.format('.0%')(d / 100)
     })
 }
