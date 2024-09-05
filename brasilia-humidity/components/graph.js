@@ -11,6 +11,8 @@ export const plotBars = (data, chart, palette, x, y, colour) => {
         .attr('width', x.bandwidth())
         .attr('height', d => y(d.humidityMin) - y(d.humidityMax))
         .attr('fill', d => colour(d.humidityMed))
+        .attr('stroke', palette.contrasting)
+        .attr('stroke-width', 0.5)
 
     chart
         .selectAll('.data-med-line')

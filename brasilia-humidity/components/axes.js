@@ -6,7 +6,6 @@ export const createAxes = (data, width, height) => {
         .scaleBand()
         .domain(data.map(d => d.date))
         .range([0, width])
-        .padding(.2)
 
     const y = d3
         .scaleLinear()
