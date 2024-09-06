@@ -1,0 +1,1 @@
+Showing how a duration of AI project is distributed between stages

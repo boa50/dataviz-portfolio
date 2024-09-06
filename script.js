@@ -1,6 +1,7 @@
 import { appendChartContainer, getChart, getMargin } from "./node_modules/visual-components/index.js"
 import { addChart as addBitcoinPricesTweets } from "./bitcoint-tweets/chart.js"
 import { addChart as addBrasiliaHumidity } from "./brasilia-humidity/chart.js"
+import { addChart as addAiProjectDuration } from "./ai-projects-duration/chart.js"
 
 const containerAspectRatio = 'aspect-[1280/769]'
 
@@ -19,6 +20,14 @@ const brasiliaHumidityId = appendChartContainer({
     theme: 'darkGradient',
     containerAspectRatio
 })
+
+const aiDurationId = appendChartContainer({
+    idNum: 3,
+    chartTitle: 'AI projects lifecycle duration',
+    chartSubtitle: '',
+    theme: 'light',
+    containerAspectRatio
+})
 await new Promise(r => setTimeout(r, 1));
 
 addBitcoinPricesTweets(
@@ -28,5 +37,10 @@ addBitcoinPricesTweets(
 
 addBrasiliaHumidity(
     getChart({ id: brasiliaHumidityId, margin: getMargin({ left: 76, right: 12, top: 24 }) }),
+    'dark'
+)
+
+addAiProjectDuration(
+    getChart({ id: aiDurationId }),
     'dark'
 )
