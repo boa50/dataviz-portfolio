@@ -1,4 +1,4 @@
-import { colours } from '../node_modules/visual-components/index.js'
+import { colours, getTextWidth } from '../node_modules/visual-components/index.js'
 import { data } from './components/data.js'
 
 export const addChart = async (chartProps, theme = 'light') => {
@@ -7,7 +7,7 @@ export const addChart = async (chartProps, theme = 'light') => {
 
     const sankey = d3
         .sankey()
-        .nodeWidth(16)
+        .nodeWidth(24)
         .nodePadding(16)
         .nodeSort(null)
         .nodeAlign(d3.sankeyLeft)
@@ -16,7 +16,14 @@ export const addChart = async (chartProps, theme = 'light') => {
     const colour = d3
         .scaleOrdinal()
         .domain([...new Set(data.nodes.map(d => d.group))].sort())
-        .range([palette.axis, palette.contrasting, palette.vermillion, palette.blue, palette.bluishGreen, palette.reddishPurple])
+        .range([
+            d3.hsl(palette.axis).darker(0.5),
+            palette.contrasting,
+            palette.vermillion,
+            palette.blue,
+            palette.bluishGreen,
+            palette.reddishPurple
+        ])
 
     // loop through each link replacing the text with its index from node
     const nodesArray = data.nodes.map(d => d.id)
@@ -35,8 +42,8 @@ export const addChart = async (chartProps, theme = 'light') => {
         .join('path')
         .attr('class', 'link')
         .attr('fill', 'none')
-        .attr('stroke', 'black')
-        .attr('stroke-opacity', 0.2)
+        .attr('stroke', palette.axis)
+        .attr('stroke-opacity', 0.75)
         .attr('stroke-width', d => d.width)
         .attr('d', d3.sankeyLinkHorizontal())
 
@@ -64,16 +71,13 @@ export const addChart = async (chartProps, theme = 'light') => {
     // add the rectangles for the nodes
     nodes
         .append('rect')
-        .attr('x', function (d) { return d.x0; })
-        .attr('y', function (d) { return d.y0; })
-        .attr('height', function (d) { return d.y1 - d.y0; })
+        .attr('x', d => d.x0)
+        .attr('y', d => d.y0)
+        .attr('height', d => d.y1 - d.y0)
         .attr('width', sankey.nodeWidth())
-        .style('fill', function (d) {
-            return d.color = colour(d.group);
-        })
-        .style('stroke', function (d) {
-            return d3.rgb(d.color).darker(2);
-        })
+        .style('fill', d => colour(d.group))
+        .style('stroke-width', 0.5)
+        .style('stroke', d => !d.id.includes('temp') ? palette.contrasting : 'none')
     // .append('title')
     // .text(function (d) {
     //     return d.stage + '\n' + format(d.value);
@@ -82,13 +86,16 @@ export const addChart = async (chartProps, theme = 'light') => {
     // add in the title for the nodes
     nodes
         .append('text')
-        .attr('x', function (d) { return d.x0 - 6; })
-        .attr('y', function (d) { return (d.y1 + d.y0) / 2; })
-        .attr('dy', '0.35em')
+        .attr('x', d => d.x0 - 4)
+        .attr('y', d => (d.y1 + d.y0) / 2)
+        .attr('dominant-baseline', 'middle')
         .attr('text-anchor', 'end')
         .attr('pointer-events', 'none')
-        .text(function (d) { return d.id; })
-        .filter(function (d) { return d.x0 < width / 2; })
-        .attr('x', function (d) { return d.x1 + 6; })
-        .attr('text-anchor', 'start');
+        .style('font-size', '0.7rem')
+        .style('font-weight', 500)
+        .style('fill', d => colour(d.group))
+        .text(d => !d.id.includes('temp') ? d.id : '')
+        .filter(d => (d.x1 + getTextWidth(d.id, '0.7rem')) < width + 8)
+        .attr('x', d => d.x1 + 4)
+        .attr('text-anchor', 'start')
 }
