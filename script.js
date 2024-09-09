@@ -41,6 +41,6 @@ addBrasiliaHumidity(
 )
 
 addAiProjectDuration(
-    getChart({ id: aiDurationId }),
+    getChart({ id: aiDurationId, margin: getMargin({ left: 8, right: 8, top: 8, bottom: 8 }) }),
     'dark'
 )

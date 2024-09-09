@@ -1,14 +1,22 @@
+import { colours } from '../node_modules/visual-components/index.js'
 import { data } from './components/data.js'
 
-export const addChart = async (chartProps) => {
+export const addChart = async (chartProps, theme = 'light') => {
     const { chart, width, height } = chartProps
+    const palette = theme === 'light' ? colours.paletteLightBg : colours.paletteDarkBg
 
     const sankey = d3
         .sankey()
         .nodeWidth(16)
-        // .nodePadding(40)
+        .nodePadding(16)
+        .nodeSort(null)
         .nodeAlign(d3.sankeyLeft)
         .size([width, height])
+
+    const colour = d3
+        .scaleOrdinal()
+        .domain([...new Set(data.nodes.map(d => d.group))].sort())
+        .range([palette.axis, palette.contrasting, palette.vermillion, palette.blue, palette.bluishGreen, palette.reddishPurple])
 
     // loop through each link replacing the text with its index from node
     const nodesArray = data.nodes.map(d => d.id)
@@ -35,7 +43,7 @@ export const addChart = async (chartProps) => {
     // // format variables
     // const formatNumber = d3.format(',.0f'), // zero decimal places
     //     format = function (d) { return formatNumber(d); },
-    const color = d3.scaleOrdinal(d3.schemeCategory10);
+
 
     // // add the link titles
     // links
@@ -61,7 +69,7 @@ export const addChart = async (chartProps) => {
         .attr('height', function (d) { return d.y1 - d.y0; })
         .attr('width', sankey.nodeWidth())
         .style('fill', function (d) {
-            return d.color = color(d.id.replace(/ .*/, ''));
+            return d.color = colour(d.group);
         })
         .style('stroke', function (d) {
             return d3.rgb(d.color).darker(2);
