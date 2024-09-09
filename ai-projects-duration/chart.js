@@ -5,12 +5,13 @@ export const addChart = async (chartProps) => {
 
     const sankey = d3
         .sankey()
-        .nodeWidth(36)
-        .nodePadding(40)
+        .nodeWidth(16)
+        // .nodePadding(40)
+        .nodeAlign(d3.sankeyLeft)
         .size([width, height])
 
     // loop through each link replacing the text with its index from node
-    const nodesArray = data.nodes.map(d => d.stage)
+    const nodesArray = data.nodes.map(d => d.id)
     data.links.forEach(d => {
         d.source = nodesArray.indexOf(d.source)
         d.target = nodesArray.indexOf(d.target)
@@ -60,7 +61,7 @@ export const addChart = async (chartProps) => {
         .attr('height', function (d) { return d.y1 - d.y0; })
         .attr('width', sankey.nodeWidth())
         .style('fill', function (d) {
-            return d.color = color(d.stage.replace(/ .*/, ''));
+            return d.color = color(d.id.replace(/ .*/, ''));
         })
         .style('stroke', function (d) {
             return d3.rgb(d.color).darker(2);
@@ -78,7 +79,7 @@ export const addChart = async (chartProps) => {
         .attr('dy', '0.35em')
         .attr('text-anchor', 'end')
         .attr('pointer-events', 'none')
-        .text(function (d) { return d.stage; })
+        .text(function (d) { return d.id; })
         .filter(function (d) { return d.x0 < width / 2; })
         .attr('x', function (d) { return d.x1 + 6; })
         .attr('text-anchor', 'start');
