@@ -8,34 +8,27 @@ export const addChart = async (chartProps, theme = 'light') => {
     const sankey = d3
         .sankey()
         .nodeWidth(24)
-        .nodePadding(16)
+        .nodePadding(24)
         .nodeSort(null)
         .nodeAlign(d3.sankeyLeft)
+        .nodeId(d => d.id)
         .size([width, height])
 
     const colour = d3
         .scaleOrdinal()
         .domain([...new Set(data.nodes.map(d => d.group))].sort())
         .range([
-            d3.hsl(palette.axis).darker(0.5),
-            palette.contrasting,
+            palette.axis + '80',
+            palette.axis,
             palette.vermillion,
             palette.blue,
             palette.bluishGreen,
             palette.reddishPurple
         ])
 
-    // loop through each link replacing the text with its index from node
-    const nodesArray = data.nodes.map(d => d.id)
-    data.links.forEach(d => {
-        d.source = nodesArray.indexOf(d.source)
-        d.target = nodesArray.indexOf(d.target)
-    })
-
     const graph = sankey(data)
 
-    // add in the links
-    const links = chart
+    chart
         .append('g')
         .selectAll('.link')
         .data(graph.links)
@@ -43,24 +36,10 @@ export const addChart = async (chartProps, theme = 'light') => {
         .attr('class', 'link')
         .attr('fill', 'none')
         .attr('stroke', palette.axis)
-        .attr('stroke-opacity', 0.75)
+        .attr('stroke-opacity', 0.2)
         .attr('stroke-width', d => d.width)
         .attr('d', d3.sankeyLinkHorizontal())
 
-    // // format variables
-    // const formatNumber = d3.format(',.0f'), // zero decimal places
-    //     format = function (d) { return formatNumber(d); },
-
-
-    // // add the link titles
-    // links
-    //     .append('title')
-    //     .text(function (d) {
-    //         return d.source.stage + ' → ' +
-    //             d.target.stage + '\n' + format(d.value);
-    //     });
-
-    // add in the nodes
     const nodes = chart
         .append('g')
         .selectAll('.node')
@@ -68,7 +47,6 @@ export const addChart = async (chartProps, theme = 'light') => {
         .join('g')
         .attr('class', 'node')
 
-    // add the rectangles for the nodes
     nodes
         .append('rect')
         .attr('x', d => d.x0)
@@ -78,12 +56,7 @@ export const addChart = async (chartProps, theme = 'light') => {
         .style('fill', d => colour(d.group))
         .style('stroke-width', 0.5)
         .style('stroke', d => !d.id.includes('temp') ? palette.contrasting : 'none')
-    // .append('title')
-    // .text(function (d) {
-    //     return d.stage + '\n' + format(d.value);
-    // })
 
-    // add in the title for the nodes
     nodes
         .append('text')
         .attr('x', d => d.x0 - 4)

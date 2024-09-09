@@ -23,7 +23,7 @@ const brasiliaHumidityId = appendChartContainer({
 
 const aiDurationId = appendChartContainer({
     idNum: 3,
-    chartTitle: 'AI projects lifecycle duration',
+    chartTitle: 'Time Spent in AI Projects',
     chartSubtitle: '',
     theme: 'light',
     containerAspectRatio
@@ -42,5 +42,5 @@ addBrasiliaHumidity(
 
 addAiProjectDuration(
     getChart({ id: aiDurationId, margin: getMargin({ left: 8, right: 8, top: 8, bottom: 8 }) }),
-    'dark'
+    'light'
 )
