@@ -1,4 +1,4 @@
-import { addPattern } from "../../node_modules/visual-components/index.js"
+import { addPattern } from '../../node_modules/visual-components/index.js'
 
 export const plotBars = (data, chart, palette, x, y, colour) => {
     chart
@@ -69,7 +69,7 @@ export const plotDesertlikeZone = (chart, x, y, width, height, palette) => {
         .attr('fill', palette.vermillion)
 }
 
-export const plotArea = (data, chart, palette, x, y, colour) => {
+export const plotArea = (data, chart, width, x, y) => {
     const area = d3
         .area()
         .x(d => x(d.date))
@@ -77,10 +77,22 @@ export const plotArea = (data, chart, palette, x, y, colour) => {
         .y1(d => y(d.humidityMed))
         .curve(d3.curveBasis)
 
+    const defs = chart.append('defs')
+
+    defs
+        .append('clipPath')
+        .attr('id', 'areaClip')
+        .append('path')
+        .attr('d', area(data))
+
+    // img from Photo by Jonathan Borba: https://www.pexels.com/photo/fine-sandy-dunes-in-dry-desert-5489194/
+
     chart
-        .selectAll('.stacks')
-        .data([data])
-        .join('path')
-        .attr('fill', d => colour(d.key))
-        .attr('d', area)
+        .append('svg:image')
+        .attr('clip-path', 'url(#areaClip)')
+        .attr('x', 0)
+        .attr('y', -100)
+        .attr('width', width)
+        .attr('height', width * 2)
+        .attr('xlink:href', 'brasilia-humidity/img/sand.webp')
 }

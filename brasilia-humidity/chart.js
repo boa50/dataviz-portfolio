@@ -42,7 +42,7 @@ export const addChartV2 = async (chartProps, theme = 'light') => {
         ]))
 
     const { x, y } = createAxes(data, width, height)
-    plotArea(data, chart, palette, x, y, colour)
+    plotArea(data, chart, width, x, y)
     plotDesertlikeZone(chart, x, y, width, height, palette)
     plotAxis(chart, width, height, palette, x, y)
 }
