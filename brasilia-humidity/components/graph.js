@@ -68,3 +68,19 @@ export const plotDesertlikeZone = (chart, x, y, width, height, palette) => {
         .attr('height', textLabelBackgroundSquare.height + 8)
         .attr('fill', palette.vermillion)
 }
+
+export const plotArea = (data, chart, palette, x, y, colour) => {
+    const area = d3
+        .area()
+        .x(d => x(d.date))
+        .y0(y(0))
+        .y1(d => y(d.humidityMed))
+        .curve(d3.curveBasis)
+
+    chart
+        .selectAll('.stacks')
+        .data([data])
+        .join('path')
+        .attr('fill', d => colour(d.key))
+        .attr('d', area)
+}
