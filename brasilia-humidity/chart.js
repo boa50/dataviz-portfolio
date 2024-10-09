@@ -43,6 +43,6 @@ export const addChartV2 = async (chartProps, theme = 'light') => {
 
     const { x, y } = createAxes(data, width, height)
     plotArea(data, chart, width, x, y)
-    plotDesertlikeZone(chart, x, y, width, height, palette)
-    plotAxis(chart, width, height, palette, x, y)
+    plotDesertlikeZone(chart, x, y, width, height, palette, d3.hsl(palette.vermillion).darker(2))
+    plotAxis(chart, width, height, palette, x, y, 'Median Humidity Level', true)
 }

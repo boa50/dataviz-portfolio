@@ -27,17 +27,19 @@ export const plotBars = (data, chart, palette, x, y, colour) => {
         .attr('stroke-width', 2)
 }
 
-export const plotDesertlikeZone = (chart, x, y, width, height, palette) => {
+export const plotDesertlikeZone = (chart, x, y, width, height, palette, colour) => {
+    colour = colour === undefined ? palette.vermillion : colour
+
     chart
         .append('rect')
         .attr('x', x(x.domain()[0]))
         .attr('y', y(20))
         .attr('width', width)
         .attr('height', height - y(20))
-        .attr('fill', palette.vermillion)
+        .attr('fill', colour)
         .attr('opacity', 0.25)
 
-    const patternId = addPattern('diagonal', chart, 0.5, palette.vermillion)
+    const patternId = addPattern('diagonal', chart, 0.5, colour)
     chart
         .append('rect')
         .attr('x', x(x.domain()[0]))
@@ -66,20 +68,25 @@ export const plotDesertlikeZone = (chart, x, y, width, height, palette) => {
         .attr('y', textLabelBackgroundSquare.y - 4)
         .attr('width', textLabelBackgroundSquare.width + 12)
         .attr('height', textLabelBackgroundSquare.height + 8)
-        .attr('fill', palette.vermillion)
+        .attr('fill', colour)
 }
 
 export const plotArea = (data, chart, width, x, y) => {
     const area = d3
         .area()
-        .x(d => x(d.date))
+        .x(d => x(d.date) * 1.005)
         .y0(y(0))
         .y1(d => y(d.humidityMed))
         .curve(d3.curveBasis)
 
-    const defs = chart.append('defs')
+    const line = d3
+        .line()
+        .x(d => x(d.date) * 1.005)
+        .y(d => y(d.humidityMed))
+        .curve(d3.curveBasis)
 
-    defs
+    chart
+        .append('defs')
         .append('clipPath')
         .attr('id', 'areaClip')
         .append('path')
@@ -91,8 +98,18 @@ export const plotArea = (data, chart, width, x, y) => {
         .append('svg:image')
         .attr('clip-path', 'url(#areaClip)')
         .attr('x', 0)
-        .attr('y', -100)
+        .attr('y', -200)
         .attr('width', width)
         .attr('height', width * 2)
         .attr('xlink:href', 'brasilia-humidity/img/sand.webp')
+
+    chart
+        .selectAll('.line-path')
+        .data([data])
+        .join('path')
+        .attr('class', 'line-path')
+        .attr('fill', 'none')
+        .attr('stroke', '#000000')
+        .attr('stroke-width', 0.25)
+        .attr('d', d => line(d))
 }

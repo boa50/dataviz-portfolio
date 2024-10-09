@@ -16,15 +16,15 @@ const bitcoinId = appendChartContainer({
 const brasiliaHumidityId = appendChartContainer({
     idNum: 2,
     chartTitle: 'Brasília Without Rain - Humidity Levels',
-    chartSubtitle: 'Brasília suffered from a prolonged drought in 2024, with more than <strong>120 days</strong> without rain, the longest in 14 years. It caused humidity levels to decrease to ones similar to a desert.',
+    chartSubtitle: 'Brasília suffered from a prolonged drought in 2024, with more than <strong>160 days</strong> without rain, the longest in 14 years. It caused humidity levels to decrease to ones similar to a desert.',
     theme: 'darkGradient',
     containerAspectRatio
 })
 
 const brasiliaHumidityV2Id = appendChartContainer({
     idNum: 22,
-    chartTitle: 'Brasília Without Rain - Humidity Levels',
-    chartSubtitle: 'Brasília suffered from a prolonged drought in 2024, with more than <strong>120 days</strong> without rain, the longest in 14 years. It caused humidity levels to decrease to ones similar to a desert.',
+    chartTitle: 'The Desertification of Brazil\'s Capital',
+    chartSubtitle: 'Brasília registered its highest drought period in 2024, during which more than <strong>5 months</strong> passed without a single drop of water. In some periods, humidity levels reached levels similar to a desert',
     theme: 'light',
     containerAspectRatio
 })
