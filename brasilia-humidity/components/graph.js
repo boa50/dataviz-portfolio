@@ -102,6 +102,7 @@ export const plotArea = (data, chart, width, x, y) => {
         .attr('width', width)
         .attr('height', width * 2)
         .attr('xlink:href', 'brasilia-humidity/img/sand.webp')
+        .attr('opacity', 0.5)
 
     chart
         .selectAll('.line-path')
